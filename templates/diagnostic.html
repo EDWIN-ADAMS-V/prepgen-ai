@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3 class="mb-4">Diagnostic Test</h3>
+
+<form method="POST" action="/submit_diagnostic">
+
+{% for q in questions %}
+<div class="card shadow mb-3">
+  <div class="card-body">
+
+    <p><strong>Question {{ loop.index }}:</strong> {{ q.question }}</p>
+
+    {% set qname = "q" ~ loop.index0 %}
+
+    {% for option in q.options %}
+    <div class="form-check">
+        <input
+            class="form-check-input"
+            type="radio"
+            name="{{ qname }}"
+            id="{{ qname }}_{{ loop.index }}"
+            value="{{ option }}"
+            required
+        >
+        <label class="form-check-label" for="{{ qname }}_{{ loop.index }}">
+            {{ option }}
+        </label>
+    </div>
+    {% endfor %}
+
+  </div>
+</div>
+{% endfor %}
+
+<button class="btn btn-success w-100">Submit Diagnostic</button>
+
+</form>
+
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2 class="mb-4">Welcome, {{ user.name }}</h2>
+
+<div class="card shadow mb-4">
+  <div class="card-body">
+    <h5>Select Target Exam</h5>
+
+    <form method="POST" action="/select_exam">
+      <select name="exam" class="form-select mb-3">
+        <option value="Banking">Banking</option>
+        <option value="Railways">Railways</option>
+        <option value="TNPSC">TNPSC</option>
+      </select>
+      <button class="btn btn-primary">Save Exam</button>
+    </form>
+  </div>
+</div>
+
+{% if not user.diagnostic_completed %}
+
+<div class="card shadow">
+  <div class="card-body text-center">
+    <h5>Diagnostic Test Required</h5>
+    <a href="/diagnostic" class="btn btn-success mt-3">Start Diagnostic</a>
+  </div>
+</div>
+
+{% else %}
+
+<div class="card shadow mb-4">
+  <div class="card-body">
+    <h5>Your Diagnostic Results</h5>
+
+    <p>Quantitative: {{ result.quantitative_score }}/5</p>
+    <p>Reasoning: {{ result.reasoning_score }}/5</p>
+    <p>English: {{ result.english_score }}/5</p>
+
+    <h4>Total Score: {{ result.total_score }}/15</h4>
+
+    <a href="/practice" class="btn btn-primary mt-3">
+      Start Adaptive Practice
+    </a>
+
+  </div>
+</div>
+
+<div class="alert alert-warning mt-3">
+
+<strong>Weakest Section:</strong> {{ weakest }}
+
+<br>
+
+Recommended Practice:
+Focus on improving <b>{{ weakest }}</b> section.
+
+</div>
+
+<div class="card shadow">
+  <div class="card-body">
+
+    <h5>Performance Analytics</h5>
+
+    <canvas id="scoreChart"></canvas>
+
+  </div>
+</div>
+
+{% endif %}
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{% if user.diagnostic_completed %}
+
+<script>
+
+const ctx = document.getElementById('scoreChart');
+
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['Quantitative', 'Reasoning', 'English'],
+        datasets: [{
+            label: 'Diagnostic Score',
+            data: [
+                {{ result.quantitative_score }},
+                {{ result.reasoning_score }},
+                {{ result.english_score }}
+            ],
+            backgroundColor: [
+                '#4e73df',
+                '#1cc88a',
+                '#f6c23e'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 5
+            }
+        }
+    }
+});
+
+</script>
+
+<div class="card shadow mt-4">
+<div class="card-body">
+
+<h5>Practice History</h5>
+
+<table class="table table-striped">
+
+<tr>
+<th>Date</th>
+<th>Score</th>
+<th>Accuracy</th>
+</tr>
+
+{% for h in history %}
+
+<tr>
+<td>{{ h.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+<td>{{ h.score }}/{{ h.total }}</td>
+<td>{{ h.percentage }}%</td>
+</tr>
+
+{% else %}
+
+<tr>
+<td colspan="3">No practice sessions yet.</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+</div>
+
+{% endif %}
+
+{% endblock %}
